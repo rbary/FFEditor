@@ -1,4 +1,2 @@
-FFEditor
-========
-
-3D Modeling 
+3D Modeling pratical work :
+Bezier,BSpline,NURBS and MeshBuilding computing

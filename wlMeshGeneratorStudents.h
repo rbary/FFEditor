@@ -68,9 +68,16 @@ public slots:
   // Scale computing
   float computeScale(std::vector<std::vector<float> > a_curve);
   // Calcul de tous les vertex
-  std::vector<std::vector<float> > allVtxComputing(int hz, std::vector<std::vector<float> > a_curve);
+  void vertexComputing(int rh, std::vector<std::vector<float> > a_curve);
+  // Calcul de lignes (tableaux d'indices) pour faciliter le calcul des triangles
+  void linesComputing(std::vector<int> al);
+  void trianglesComputing();
 
 protected:
+  //Conteneur pour stacker tous les points
+  std::vector<std::vector<float> > allVtx;
+  //Conteneur pour stocker les indices des points
+  std::vector<std::vector<int> > lines;
   //La nouvelle curve
   std::vector<std::vector<float> > newCurve;
   //valeur courante de u
