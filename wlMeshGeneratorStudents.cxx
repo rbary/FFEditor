@@ -352,6 +352,9 @@ wlMeshGeneratorStudents::BuildMesh()
         curveTemp.push_back(curve[i]);
     }
 
+
+      int nbCurvePoints=curveTemp.size();
+
       //affichage des points recuperes
       for(int i=0;i<curveTemp.size();i++){
           cout<<"x: "<<curveTemp[i][0]<<" y: "<<curveTemp[i][1]<<endl;
@@ -367,7 +370,7 @@ wlMeshGeneratorStudents::BuildMesh()
       cout<<"Scale value : "<<a_scale<<endl;
       for(int i=0;i<curveTemp.size();i++){
         curveTemp[i][0]= curveTemp[i][0]/(2 * a_scale);
-        curveTemp[i][1]=(-1) * curveTemp[i][1]/(2* a_scale);
+        curveTemp[i][1]=(-1) * curveTemp[i][1]/(2 * a_scale);
       }
 
       //Récupération de la résolution horizontale
@@ -375,17 +378,47 @@ wlMeshGeneratorStudents::BuildMesh()
 
       //On calcule tous les points par revolution du profil autor de l'axe Oy
       vertexComputing(rh,curveTemp);
+      trianglesComputing();
 
       //affichage de tous les vertex calcules
       cout<<"Affichage de tous les vertex calculees"<<endl;
-      for(unsigned int i=0;i<allVtx.size();i++){
-          cout<<allVtx[i][0]<<"|"<<allVtx[i][1]<<"|"<<allVtx[i][2]<<endl;
+      for(unsigned int i=0;i<Vtx.size();i++){
+          cout<<Vtx[i][0]<<"|"<<Vtx[i][1]<<"|"<<Vtx[i][2]<<endl;
       }
 
+      //affichage des valeurs de lines
+      /*for(unsigned int i=0;i<lines.size();i++){
+          for(unsigned int j=0;j<lines[i].size();j++){
+              cout<<lines[i][j];
+          }
+          cout<<">"<<endl;
+      }*/
+      /////////////////////////////////////////////////////////////////
+      verts.clear();
+      for(unsigned int i=0;i<Vtx.size();i++){
+          verts.push_back(Vtx[i]);
+      }
+
+      triangles.clear();
+      for(unsigned int i=0;i<Trgls.size();i++){
+          triangles.push_back(Trgls[i]);
+      }
+
+      cout<<"Affichage de tous les vertex calculees et trouvees dans verts"<<endl;
+      for(unsigned int i=0;i<Vtx.size();i++){
+          cout<<Vtx[i][0]<<"|"<<Vtx[i][1]<<"|"<<Vtx[i][2]<<endl;
+      }
+
+      cout<<"Affichage des indices des triangles calcules"<<endl;
+      for(unsigned int i=0;i<Trgls.size();i++){
+          cout<<Trgls[i][0]<<"|"<<Trgls[i][1]<<"|"<<Trgls[i][2]<<endl;
+      }
+
+      Vtx.clear();
+      Trgls.clear();
       wlMeshGenerator::BuildMesh();
       wlMeshGenerator::PrintContent();
-      allVtx.clear();
-    }
+}
 
 float wlMeshGeneratorStudents::computeScale(std::vector<std::vector<float> > a_curve){
       float maxValue=0;
@@ -406,28 +439,28 @@ void wlMeshGeneratorStudents::vertexComputing(int rh, std::vector<std::vector<fl
   std::vector<float> aVtx(3,0);
   std::vector<int> aLine;
 
-  allVtx.push_back(a_curve[0]);
-  aLine.push_back(allVtx.size()-1);
+  Vtx.push_back(a_curve[0]);
+  aLine.push_back(Vtx.size()-1);
   linesComputing(aLine);
   aLine.clear();
 
   for(unsigned int i=0;i<rh;i++){
       for(unsigned int i=1;i<(a_curve.size()-1);i++){
-            glm::vec3 vtxToRotate(a_curve[i][0],a_curve[i][1],0);
-            glm::vec3 vtxRotated = glm::rotateY(vtxToRotate,angle);
-            aVtx[0]=vtxRotated[0];
-            aVtx[1]=vtxRotated[1];
-            aVtx[2]=vtxRotated[2];
+            glm::vec3 VtxToRotate(a_curve[i][0],a_curve[i][1],0);
+            glm::vec3 VtxRotated = glm::rotateY(VtxToRotate,angle);
+            aVtx[0]=VtxRotated[0];
+            aVtx[1]=VtxRotated[1];
+            aVtx[2]=VtxRotated[2];
 
-            allVtx.push_back(aVtx);
-            aLine.push_back(allVtx.size()-1);
+            Vtx.push_back(aVtx);
+            aLine.push_back(Vtx.size()-1);
       }
-            linesComputing(aLine);
             angle += angleV;
-            aLine.clear();
   }
-  allVtx.push_back(a_curve[a_curve.size()-1]);
-  aLine.push_back(allVtx.size()-1);
+  linesComputing(aLine);
+  aLine.clear();
+  Vtx.push_back(a_curve[a_curve.size()-1]);
+  aLine.push_back(Vtx.size()-1);
   linesComputing(aLine);
   aLine.clear();
 }
@@ -437,7 +470,48 @@ void wlMeshGeneratorStudents::linesComputing(std::vector<int> al){
 }
 
 void wlMeshGeneratorStudents::trianglesComputing(){
+    std::vector<int> index;
     cout<<"Triangles computing"<<endl;
+    int vr=VerticalResolution;
+
+    if(vr < 3){
+        cout<<"Vertical resolution est plus grand que 3 je fais le traitement adequat"<<endl;
+
+
+        /*for(unsigned int i=1;i<(line.size()-2);i++){
+            for(unsigned int j=0;j<lines[i].size();j++){
+                        aTrgl.push_back(line[i][j]);
+                        aTrgl.push_back(line[i+1][j]);
+                        aTrgl.push_back(line[i][j+1]);
+                        Trgls.push_back(aTrgl);
+                        aTrgl.clear();
+
+                        aTrgl.push_back(lines[i][j+1]);
+                        aTrgl.push_back(lines[i+1][j]);
+                        aTrgl.push_back(lines[i+1][j+1]);
+                        Trgls.push_back(aTrgl);
+                        aTrgl.clear();
+            }*/
+    }
+
+    int l1=lines[1].size();
+    for(unsigned int i=0;i<lines[1].size();i++){
+          index.push_back(lines[0][0]);
+          index.push_back(lines[1][(i+1)% l1]);
+          index.push_back(lines[1][i]);
+          Trgls.push_back(index);
+          index.clear();
+    }
+
+    for(unsigned int i=0;i<lines[1].size();i++){
+          index.push_back(lines[2][0]);
+          index.push_back(lines[1][i]);
+          index.push_back(lines[1][(i+1)% l1]);
+          Trgls.push_back(index);
+          index.clear();
+    }
+
+    cout<<"Calcul des triangles ok//"<<endl;
 }
 
 

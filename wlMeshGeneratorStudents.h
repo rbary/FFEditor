@@ -71,13 +71,16 @@ public slots:
   void vertexComputing(int rh, std::vector<std::vector<float> > a_curve);
   // Calcul de lignes (tableaux d'indices) pour faciliter le calcul des triangles
   void linesComputing(std::vector<int> al);
+  // Calcul des triangles pour la realisation de la mesh
   void trianglesComputing();
 
 protected:
   //Conteneur pour stacker tous les points
-  std::vector<std::vector<float> > allVtx;
-  //Conteneur pour stocker les indices des points
+  std::vector<std::vector<float> > Vtx;
+  //Conteneur pour stocker les indices des points par paliers
   std::vector<std::vector<int> > lines;
+  //Conteneur pour stocker les triangles calcules
+  std::vector<std::vector<int> > Trgls;
   //La nouvelle curve
   std::vector<std::vector<float> > newCurve;
   //valeur courante de u
