@@ -339,130 +339,137 @@ void wlMeshGeneratorStudents::afficheVector(std::vector<int> vectorToDisplay){
         Print("%d",vectorToDisplay[i]);
     }
 }
+
+void wlMeshGeneratorStudents::displayVectFloat(std::vector<std::vector<float> > v){
+    for(unsigned int i=0;i<v.size();i++){
+        for(unsigned int j=0;j<v[i].size();j++){
+            cout<<v[i][j]<<"|";
+        }
+        cout<<endl;
+    }
+    cout<<"******************************"<<endl;
+}
+
+void wlMeshGeneratorStudents::displayVectInt(std::vector<std::vector<int> > v){
+    for(unsigned int i=0;i<v.size();i++){
+        for(unsigned int j=0;j<v[i].size();j++){
+            cout<<v[i][j]<<"|";
+        }
+        cout<<endl;
+    }
+    cout<<"******************************"<<endl;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void
-wlMeshGeneratorStudents::BuildMesh()
-{
+void wlMeshGeneratorStudents::BuildMesh(){
     if (this->points.size()<4)
         return;
 
-    //Recuperation des points de la courbe
     std::vector<std::vector<float> > curveTemp;
+
+    //Curve values retrieving
     for(int i=0;i<curve.size();i++){
         curveTemp.push_back(curve[i]);
     }
 
+    geometricTransformations(curveTemp);
+    vertexComputing();
+    trianglesComputing();
 
-      int nbCurvePoints=curveTemp.size();
+    ///////////////////////////////////////////////
+    //wlMeshGenerator::BuildMesh();
+    //wlMeshGenerator::PrintContent();
+    curveTemp.clear();
+  }
 
-      //affichage des points recuperes
-      for(int i=0;i<curveTemp.size();i++){
-          cout<<"x: "<<curveTemp[i][0]<<" y: "<<curveTemp[i][1]<<endl;
-       }
+void wlMeshGeneratorStudents::geometricTransformations(std::vector<std::vector<float> > acurve){
+    std::vector<float> tempVtx(3,0);
 
-      //Translation
-      for(int i=0;i<curveTemp.size();i++){
-      curveTemp[i][0]=curveTemp[i][0]-20;
-      curveTemp[i][1]=curveTemp[i][1]-50;
-      }
-      //mise a echelle et rotation de l'axe Oy/Oz
-      float a_scale=computeScale(curveTemp);
-      cout<<"Scale value : "<<a_scale<<endl;
-      for(int i=0;i<curveTemp.size();i++){
-        curveTemp[i][0]= curveTemp[i][0]/(2 * a_scale);
-        curveTemp[i][1]=(-1) * curveTemp[i][1]/(2 * a_scale);
-      }
+    //Translation
+    for(int i=0;i<acurve.size();i++){
+        acurve[i][0]=acurve[i][0]-20;
+        acurve[i][1]=acurve[i][1]-50;
+    }
+    //mise a echelle et rotation de l'axe Oy/Oz
+    float a_scale=computeScale(acurve);
+    for(int i=0;i<acurve.size();i++){
+    acurve[i][0]= acurve[i][0]/(2 * a_scale);
+    acurve[i][1]= acurve[i][1]/(2 * a_scale);
+    }
 
-      //Récupération de la résolution horizontale
-      int rh=wlMeshGenerator::HorizontalResolution;
+    //Curve retrieving in 3D
+    for(unsigned int i=0;i< acurve.size();i++){
 
-      //On calcule tous les points par revolution du profil autor de l'axe Oy
-      vertexComputing(rh,curveTemp);
-      trianglesComputing();
-
-      //affichage de tous les vertex calcules
-      cout<<"Affichage de tous les vertex calculees"<<endl;
-      for(unsigned int i=0;i<Vtx.size();i++){
-          cout<<Vtx[i][0]<<"|"<<Vtx[i][1]<<"|"<<Vtx[i][2]<<endl;
-      }
-
-      //affichage des valeurs de lines
-      /*for(unsigned int i=0;i<lines.size();i++){
-          for(unsigned int j=0;j<lines[i].size();j++){
-              cout<<lines[i][j];
-          }
-          cout<<">"<<endl;
-      }*/
-      /////////////////////////////////////////////////////////////////
-      verts.clear();
-      for(unsigned int i=0;i<Vtx.size();i++){
-          verts.push_back(Vtx[i]);
-      }
-
-      triangles.clear();
-      for(unsigned int i=0;i<Trgls.size();i++){
-          triangles.push_back(Trgls[i]);
-      }
-
-      cout<<"Affichage de tous les vertex calculees et trouvees dans verts"<<endl;
-      for(unsigned int i=0;i<Vtx.size();i++){
-          cout<<Vtx[i][0]<<"|"<<Vtx[i][1]<<"|"<<Vtx[i][2]<<endl;
-      }
-
-      cout<<"Affichage des indices des triangles calcules"<<endl;
-      for(unsigned int i=0;i<Trgls.size();i++){
-          cout<<Trgls[i][0]<<"|"<<Trgls[i][1]<<"|"<<Trgls[i][2]<<endl;
-      }
-
-      Vtx.clear();
-      Trgls.clear();
-      wlMeshGenerator::BuildMesh();
-      wlMeshGenerator::PrintContent();
+        tempVtx[0]= acurve[i][0];
+        tempVtx[1]= -1 * acurve[i][1];
+        tempVtx[2]= 0.0;
+        curveIn3D.push_back(tempVtx);
+    }
+    cout<<"Geometrics transformations done."<<endl;
+    cout<<"********************************"<<endl;
 }
 
-float wlMeshGeneratorStudents::computeScale(std::vector<std::vector<float> > a_curve){
+float wlMeshGeneratorStudents::computeScale(std::vector<std::vector<float> > acurve){
       float maxValue=0;
       float scale=0;
-      for(int i=0;i<a_curve.size();i++){
-          for(int j=0;j<a_curve[i].size();j++){
-              maxValue=std::max(maxValue,a_curve[i][j]);
+      for(int i=0;i<acurve.size();i++){
+          for(int j=0;j<acurve[i].size();j++){
+              maxValue=std::max(maxValue,acurve[i][j]);
           }
       }
       scale=maxValue;
       return scale;
 }
 
-void wlMeshGeneratorStudents::vertexComputing(int rh, std::vector<std::vector<float> > a_curve){
-  float angleV=360/rh;
-  float angle=0;
+void wlMeshGeneratorStudents::vertexComputing(){
+
+  int rh=this->HorizontalResolution;
+  float angleV=(float)360/rh;
+  int lv =curveIn3D.size()-1;      //Last vertex indice in a_curve
 
   std::vector<float> aVtx(3,0);
   std::vector<int> aLine;
 
-  Vtx.push_back(a_curve[0]);
+  //We add the primary and last vertex of the primary curve
+  Vtx.push_back(curveIn3D[0]);                                     //we push the first vertex
   aLine.push_back(Vtx.size()-1);
   linesComputing(aLine);
   aLine.clear();
 
-  for(unsigned int i=0;i<rh;i++){
-      for(unsigned int i=1;i<(a_curve.size()-1);i++){
-            glm::vec3 VtxToRotate(a_curve[i][0],a_curve[i][1],0);
-            glm::vec3 VtxRotated = glm::rotateY(VtxToRotate,angle);
-            aVtx[0]=VtxRotated[0];
-            aVtx[1]=VtxRotated[1];
-            aVtx[2]=VtxRotated[2];
+  for(unsigned int i=1;i<lv;i++){
+    for(float a=0;a<360;a+=angleV){
+            //Y-Axis Rotation
+            aVtx[0]=-1*(curveIn3D[i][2] * sin(a * M_PI/180.0) + curveIn3D[i][0] * cos(a * M_PI/180.0));   //x' coordinate
+            aVtx[1]=-1*(curveIn3D[i][1]);                                                                 //y' coordinate
+            aVtx[2]=-1*(curveIn3D[i][2] * cos(a * M_PI/180.0) + curveIn3D[i][0] * sin(a * M_PI/180.0));   //z' coordinate
 
             Vtx.push_back(aVtx);
             aLine.push_back(Vtx.size()-1);
-      }
-            angle += angleV;
+    }
+    linesComputing(aLine);
+    aLine.clear();
   }
-  linesComputing(aLine);
-  aLine.clear();
-  Vtx.push_back(a_curve[a_curve.size()-1]);
+
+  Vtx.push_back(curveIn3D[lv]);                                    //we push the last vertex
   aLine.push_back(Vtx.size()-1);
   linesComputing(aLine);
   aLine.clear();
+
+  displayVectFloat(Vtx);
+  cout<<"lines container displaing ..."<<endl;
+  displayVectInt(lines);
+
+  //We put in verts all the vertex computed
+  verts.clear();
+  for(unsigned int i=0;i<Vtx.size();i++){
+      verts.push_back(Vtx[i]);
+  }
+
+
+  curveIn3D.clear();
+  Vtx.clear();
+  cout<<"Vertex Computing done."<<endl;
+  cout<<"********************************"<<endl;
 }
 
 void wlMeshGeneratorStudents::linesComputing(std::vector<int> al){
@@ -471,11 +478,20 @@ void wlMeshGeneratorStudents::linesComputing(std::vector<int> al){
 
 void wlMeshGeneratorStudents::trianglesComputing(){
     std::vector<int> index;
-    cout<<"Triangles computing"<<endl;
     int vr=VerticalResolution;
 
-    if(vr < 3){
-        cout<<"Vertical resolution est plus grand que 3 je fais le traitement adequat"<<endl;
+    int lineSize=lines.size();
+    int sfc=lines[1].size();                        //size of the first circle
+    int slc=lines[lineSize-1].size();               //size of the last circle
+
+    if(vr > 3){
+        /*for(unsigned int i=0;i<lines[1].size();i++){
+              index.push_back(lines[0][0]);
+              index.push_back(lines[1][(i+1)% sfc]);
+              index.push_back(lines[1][i]);
+              Trgls.push_back(index);
+              index.clear();
+        }*/
 
 
         /*for(unsigned int i=1;i<(line.size()-2);i++){
@@ -491,13 +507,23 @@ void wlMeshGeneratorStudents::trianglesComputing(){
                         aTrgl.push_back(lines[i+1][j+1]);
                         Trgls.push_back(aTrgl);
                         aTrgl.clear();
-            }*/
+           }
+        }*/
+
+        /*for(unsigned int i=0;i<lines[lineSize-1].size();i++){
+              index.push_back(lines[lineSize-2][0]);
+              index.push_back(lines[lineSize-1][i]);
+              index.push_back(lines[lineSize-1][(i+1)% slc]);
+              Trgls.push_back(index);
+              index.clear();
+        }*/
+        cout<<"I know what i have to do"<<endl;
     }
 
-    int l1=lines[1].size();
+    //////////////////////////////////////////////////////
     for(unsigned int i=0;i<lines[1].size();i++){
           index.push_back(lines[0][0]);
-          index.push_back(lines[1][(i+1)% l1]);
+          index.push_back(lines[1][(i+1)% sfc]);
           index.push_back(lines[1][i]);
           Trgls.push_back(index);
           index.clear();
@@ -506,12 +532,21 @@ void wlMeshGeneratorStudents::trianglesComputing(){
     for(unsigned int i=0;i<lines[1].size();i++){
           index.push_back(lines[2][0]);
           index.push_back(lines[1][i]);
-          index.push_back(lines[1][(i+1)% l1]);
+          index.push_back(lines[1][(i+1)% sfc]);
           Trgls.push_back(index);
           index.clear();
     }
 
-    cout<<"Calcul des triangles ok//"<<endl;
+
+    triangles.clear();
+    for(unsigned int i=0;i<Trgls.size();i++){
+        triangles.push_back(Trgls[i]);
+    }
+
+    Trgls.clear();
+    lines.clear();
+    cout<<"Triangles computing done."<<endl;
+    cout<<"********************************"<<endl;
 }
 
 
