@@ -364,18 +364,14 @@ void wlMeshGeneratorStudents::displayVectInt(std::vector<std::vector<int> > v){
 void wlMeshGeneratorStudents::BuildMesh(){
     if (this->points.size()<4)
         return;
-
     std::vector<std::vector<float> > curveTemp;
-
     //Curve values retrieving
     for(int i=0;i<curve.size();i++){
         curveTemp.push_back(curve[i]);
     }
-
     geometricTransformations(curveTemp);
     vertexComputing();
     trianglesComputing();
-
     ///////////////////////////////////////////////
     //wlMeshGenerator::BuildMesh();
     //wlMeshGenerator::PrintContent();
@@ -405,6 +401,7 @@ void wlMeshGeneratorStudents::geometricTransformations(std::vector<std::vector<f
         tempVtx[2]= 0.0;
         curveIn3D.push_back(tempVtx);
     }
+    cout<<"###########################################################################################"<<endl;
     cout<<"Geometrics transformations done."<<endl;
     cout<<"********************************"<<endl;
 }
@@ -439,9 +436,9 @@ void wlMeshGeneratorStudents::vertexComputing(){
   for(unsigned int i=1;i<lv;i++){
     for(float a=0;a<360;a+=angleV){
             //Y-Axis Rotation
-            aVtx[0]=-1*(curveIn3D[i][2] * sin(a * M_PI/180.0) + curveIn3D[i][0] * cos(a * M_PI/180.0));   //x' coordinate
-            aVtx[1]=-1*(curveIn3D[i][1]);                                                                 //y' coordinate
-            aVtx[2]=-1*(curveIn3D[i][2] * cos(a * M_PI/180.0) + curveIn3D[i][0] * sin(a * M_PI/180.0));   //z' coordinate
+            aVtx[0]=(-1) * (curveIn3D[i][2] * sin(a * M_PI/180.0) + curveIn3D[i][0] * cos(a * M_PI/180.0));   //x' coordinate
+            aVtx[1]= (curveIn3D[i][1]);                                                                 //y' coordinate
+            aVtx[2]=(-1) * (curveIn3D[i][2] * cos(a * M_PI/180.0) + curveIn3D[i][0] * sin(a * M_PI/180.0));   //z' coordinate
 
             Vtx.push_back(aVtx);
             aLine.push_back(Vtx.size()-1);
@@ -456,10 +453,10 @@ void wlMeshGeneratorStudents::vertexComputing(){
   aLine.clear();
 
   displayVectFloat(Vtx);
-  cout<<"lines container displaing ..."<<endl;
+  cout<<"lines container displaying ..."<<endl;
   displayVectInt(lines);
 
-  //We put in verts all the vertex computed
+  //We put in verts container all the vertex computed
   verts.clear();
   for(unsigned int i=0;i<Vtx.size();i++){
       verts.push_back(Vtx[i]);
@@ -481,63 +478,66 @@ void wlMeshGeneratorStudents::trianglesComputing(){
     int vr=VerticalResolution;
 
     int lineSize=lines.size();
-    int sfc=lines[1].size();                        //size of the first circle
-    int slc=lines[lineSize-1].size();               //size of the last circle
+    int sc=lines[1].size();                        //size of a circle (Here the first)
 
     if(vr > 3){
-        /*for(unsigned int i=0;i<lines[1].size();i++){
+       for(unsigned int j=0;j<sc;j++){
               index.push_back(lines[0][0]);
-              index.push_back(lines[1][(i+1)% sfc]);
-              index.push_back(lines[1][i]);
+              index.push_back(lines[1][(j+1)% sc]);
+              index.push_back(lines[1][j]);
               Trgls.push_back(index);
               index.clear();
-        }*/
+        }
 
 
-        /*for(unsigned int i=1;i<(line.size()-2);i++){
-            for(unsigned int j=0;j<lines[i].size();j++){
-                        aTrgl.push_back(line[i][j]);
-                        aTrgl.push_back(line[i+1][j]);
-                        aTrgl.push_back(line[i][j+1]);
-                        Trgls.push_back(aTrgl);
-                        aTrgl.clear();
+        for(unsigned int i=1;i<(lineSize-2);i++){
+            for(unsigned int j=0;j<sc;j++){
+                        index.push_back(lines[i][j]);
+                        index.push_back(lines[(i+1) % (lineSize-1)][(j+1)% sc]);
+                        index.push_back(lines[(i+1) % (lineSize-1)][j]);
+                        Trgls.push_back(index);
+                        index.clear();
 
-                        aTrgl.push_back(lines[i][j+1]);
-                        aTrgl.push_back(lines[i+1][j]);
-                        aTrgl.push_back(lines[i+1][j+1]);
-                        Trgls.push_back(aTrgl);
-                        aTrgl.clear();
+                        index.push_back(lines[i][j]);
+                        index.push_back(lines[i][(j+1) % sc]);
+                        index.push_back(lines[(i+1) % (lineSize-1)][(j+1) % sc]);
+                        Trgls.push_back(index);
+                        index.clear();
            }
-        }*/
+        }
 
-        /*for(unsigned int i=0;i<lines[lineSize-1].size();i++){
-              index.push_back(lines[lineSize-2][0]);
-              index.push_back(lines[lineSize-1][i]);
-              index.push_back(lines[lineSize-1][(i+1)% slc]);
+        for(unsigned int j=0;j<sc;j++){
+              index.push_back(lines[lineSize-1][0]);
+              index.push_back(lines[lineSize-2][j]);
+              index.push_back(lines[lineSize-2][(j+1)% sc]);
               Trgls.push_back(index);
               index.clear();
-        }*/
-        cout<<"I know what i have to do"<<endl;
+        }
+        cout<<"I'm doing what i have to do"<<endl;
+    }else{
+        //////////////////////////////////////////////////////
+        for(unsigned int j=0;j<sc;j++){
+              index.push_back(lines[0][0]);
+              index.push_back(lines[1][(j+1)% sc]);
+              index.push_back(lines[1][j]);
+              Trgls.push_back(index);
+              index.clear();
+        }
+
+        for(unsigned int j=0;j<sc;j++){
+              index.push_back(lines[2][0]);
+              index.push_back(lines[1][j]);
+              index.push_back(lines[1][(j+1)% sc]);
+              Trgls.push_back(index);
+              index.clear();
+        }
     }
 
-    //////////////////////////////////////////////////////
-    for(unsigned int i=0;i<lines[1].size();i++){
-          index.push_back(lines[0][0]);
-          index.push_back(lines[1][(i+1)% sfc]);
-          index.push_back(lines[1][i]);
-          Trgls.push_back(index);
-          index.clear();
-    }
 
-    for(unsigned int i=0;i<lines[1].size();i++){
-          index.push_back(lines[2][0]);
-          index.push_back(lines[1][i]);
-          index.push_back(lines[1][(i+1)% sfc]);
-          Trgls.push_back(index);
-          index.clear();
-    }
+    displayVectFloat(verts);
+    displayVectInt(Trgls);
 
-
+    //We put in triangles container all the triangles computed
     triangles.clear();
     for(unsigned int i=0;i<Trgls.size();i++){
         triangles.push_back(Trgls[i]);
@@ -547,6 +547,7 @@ void wlMeshGeneratorStudents::trianglesComputing(){
     lines.clear();
     cout<<"Triangles computing done."<<endl;
     cout<<"********************************"<<endl;
+    cout<<"###########################################################################################"<<endl;
 }
 
 

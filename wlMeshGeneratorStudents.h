@@ -19,7 +19,6 @@
 #include <vector>
 #include <QMessageBox>
 #include <iostream>
-#include <glm/glm/gtx/rotate_vector.hpp>
 #include <math.h>
 using namespace std;
 
