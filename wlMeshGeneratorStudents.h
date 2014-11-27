@@ -20,8 +20,10 @@
 #include <QMessageBox>
 #include <iostream>
 #include <glm/glm/gtx/rotate_vector.hpp>
+#include <math.h>
 using namespace std;
 
+#define _USE_MATH_DEFINES
 
 #define BEZIER 0
 #define BSPLINE 1
@@ -65,16 +67,23 @@ public slots:
   void addCurrent_wiToWi();
   /// Affichage par parcours d'un vecteur lambda
   void afficheVector(std::vector<int> vectorToDisplay);
+  // geometric trnasformations
+  void geometricTransformations(std::vector<std::vector<float> > acurve);
   // Scale computing
-  float computeScale(std::vector<std::vector<float> > a_curve);
+  float computeScale(std::vector<std::vector<float> > acurve);
   // Calcul de tous les vertex
-  void vertexComputing(int rh, std::vector<std::vector<float> > a_curve);
+  void vertexComputing();
   // Calcul de lignes (tableaux d'indices) pour faciliter le calcul des triangles
   void linesComputing(std::vector<int> al);
   // Calcul des triangles pour la realisation de la mesh
   void trianglesComputing();
 
+  void displayVectFloat(std::vector<std::vector<float> > v);
+  void displayVectInt(std::vector<std::vector<int> > v);
+
 protected:
+
+  std::vector<std::vector<float> > curveIn3D;
   //Conteneur pour stacker tous les points
   std::vector<std::vector<float> > Vtx;
   //Conteneur pour stocker les indices des points par paliers
