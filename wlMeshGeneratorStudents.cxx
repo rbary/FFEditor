@@ -365,8 +365,17 @@ void wlMeshGeneratorStudents::BuildMesh(){
     if (this->points.size()<4)
         return;
     std::vector<std::vector<float> > curveTemp;
+    std::vector<float> aPt;
     //Curve values retrieving
     for(int i=0;i<curve.size();i++){
+        if(i == curve.size()-1){
+            if(curve[i][0] != 20 && curve[i][1]!= 80){
+                aPt.push_back((float)20);
+                aPt.push_back((float)80);
+                curveTemp.push_back(aPt);
+                aPt.clear();
+            }
+        }
         curveTemp.push_back(curve[i]);
     }
     geometricTransformations(curveTemp);
